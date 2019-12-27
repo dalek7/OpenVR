@@ -1,6 +1,13 @@
 # Prerequisites
 *.d
 
+
+# MFC-related
+Debug/
+Release/
+*.user
+*.pdb
+
 # Compiled Object files
 *.slo
 *.lo
