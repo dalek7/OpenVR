@@ -1,6 +1,7 @@
 # Prerequisites
 *.d
 
+*.bak
 
 # MFC-related
 Debug/
