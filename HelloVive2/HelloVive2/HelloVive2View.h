@@ -6,6 +6,8 @@
 
 //#include "../lib/guicon.h"
 #include "../lib/ddStatic.h"
+#include "../lib/ddEdit.h"
+
 #include "../lib/openvr/headers/openvr.h"
 #include "../lib/openvr/shared/Matrices.h"
 
@@ -21,7 +23,9 @@ public:
 
 	ddStatic m_info1;
 	ddStatic m_info2;
+	ddStatic m_info3;
 
+	ddEdit m_edit1;
 // 작업입니다.
 public:
 	
@@ -36,6 +40,8 @@ public:
 	std::string m_strPoseClasses;
 	char m_rDevClassChar[vr::k_unMaxTrackedDeviceCount];   // for each device, a character representing its class
 
+	//
+	int m_n_generic_tracker;
 	
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	Matrix4 m_rmat4DevicePose[vr::k_unMaxTrackedDeviceCount];

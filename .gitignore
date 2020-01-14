@@ -8,6 +8,8 @@ Debug/
 Release/
 *.user
 *.pdb
+.vs/
+*.ipch
 
 # Compiled Object files
 *.slo

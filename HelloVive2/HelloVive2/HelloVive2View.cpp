@@ -43,6 +43,7 @@ CHelloVive2View::CHelloVive2View() noexcept
 	m_mode = 0;
 	m_unMaxTrackedDeviceCount = 0;
 
+	m_n_generic_tracker = -1;
 
 
 	m_iTrackedControllerCount = 0;
@@ -131,18 +132,24 @@ void CHelloVive2View::OnInitialUpdate()
 {
 	CView::OnInitialUpdate();
 	
-	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
-	SetTimer(0,10,NULL);
+	SetTimer(0,20,NULL);
 	//RedirectIOToConsole();
 	CStringA str1 = "aa";
 
 	m_info1.Create(str1, WS_CHILD|WS_VISIBLE, CRect(0, 0, 200, 30),this,0);
-	m_info2.Create(str1, WS_CHILD | WS_VISIBLE, CRect(0, 0, 200, 30)+CPoint(0,50), this, 0);
-	
+	m_info2.Create(str1, WS_CHILD | WS_VISIBLE, CRect(0, 0, 200, 30) + CPoint(0, 30 * 1), this, 0);
+	m_info3.Create(str1, WS_CHILD | WS_VISIBLE, CRect(0, 0, 200, 30) + CPoint(0, 30 * 2), this, 0);
+	m_edit1.Create(ES_MULTILINE | WS_CHILD | WS_VISIBLE | WS_BORDER , CRect(0, 0, 200, 70) + CPoint(0, 30 * 3), this, 0);
+
 	// Loading the SteamVR Runtime
 	vr::EVRInitError eError = vr::VRInitError_None;
 	m_pHMD = vr::VR_Init( &eError, vr::VRApplication_Scene );
 	
+
+	// TODO : Log the trajectory.
+	// TODO : OpenGL
+
+
 	this->SetFocus();
 
 }
@@ -157,6 +164,7 @@ bool CHelloVive2View::UpdateHMDMatrixPose()
 	m_strPoseClasses = "";
 	m_unMaxTrackedDeviceCount = vr::k_unMaxTrackedDeviceCount;
 
+	m_n_generic_tracker = -1;
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
@@ -176,6 +184,16 @@ bool CHelloVive2View::UpdateHMDMatrixPose()
 				}
 			}
 			m_strPoseClasses += m_rDevClassChar[nDevice];
+
+			
+			if (m_pHMD->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_GenericTracker)
+			{
+				m_n_generic_tracker = nDevice;
+				// get pose
+				//m_rmat4DevicePose[nDevice]
+
+			}
+			
 		}
 	}
 
@@ -195,8 +213,21 @@ void CHelloVive2View::OnTimer(UINT_PTR nIDEvent)
 	{
 		bool b1 = UpdateHMDMatrixPose();
 
-		m_info1.dbg("%d\t%d\t%d\t%d", m_cnt, m_mode, b1, m_iValidPoseCount);//m_unMaxTrackedDeviceCount
+		m_info1.dbg("%d\t%d\t%d\tValid:%d", m_cnt, m_mode, b1, m_iValidPoseCount);//m_unMaxTrackedDeviceCount
 		m_info2.dbg(m_strPoseClasses.c_str());
+
+		// column-wise
+		Matrix4 a = m_rmat4DevicePose[m_n_generic_tracker];
+		m_info3.dbg("%d, %.3f", m_n_generic_tracker, a[0]);
+
+		CString buf;
+		buf.Format("%.3f, %.3f, %.3f, %.3f\r\n%.3f, %.3f, %.3f, %.3f\r\n%.3f, %.3f, %.3f, %.3f\r\n%.3f, %.3f, %.3f, %.3f",
+			a[0], a[4], a[8], a[12], 
+			a[1], a[5], a[9], a[13], 
+			a[2], a[6], a[10], a[14], 
+			a[3], a[7], a[11], a[15]);
+		m_edit1.dbg(buf);
+
 		m_cnt++;
 	}
 	CView::OnTimer(nIDEvent);
