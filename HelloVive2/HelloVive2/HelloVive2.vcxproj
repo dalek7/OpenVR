@@ -223,6 +223,7 @@
     <ResourceCompile Include="HelloVive2.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\README.md" />
     <None Include="res\HelloVive2.rc2" />
   </ItemGroup>
   <ItemGroup>

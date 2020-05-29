@@ -96,6 +96,9 @@
     <None Include="res\HelloVive2.rc2">
       <Filter>리소스 파일</Filter>
     </None>
+    <None Include="..\..\README.md">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\HelloVive2Doc.ico">

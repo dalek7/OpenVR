@@ -17,7 +17,7 @@ protected: // serialization에서만 만들어집니다.
 	CHelloVive2View() noexcept;
 	DECLARE_DYNCREATE(CHelloVive2View)
 
-// 특성입니다.
+	// 특성입니다.
 public:
 	CHelloVive2Doc* GetDocument() const;
 
@@ -25,10 +25,14 @@ public:
 	ddStatic m_info2;
 	ddStatic m_info3;
 
-	ddEdit m_edit1;
-// 작업입니다.
+
+	ddEdit m_edit1; //HMD
+	ddEdit m_edit2;
+
+	void ConvertToString(Matrix4 a, CString& buf);
+	// 작업입니다.
 public:
-	
+
 	int m_cnt;
 	int m_mode;
 	int m_unMaxTrackedDeviceCount;
@@ -42,7 +46,9 @@ public:
 
 	//
 	int m_n_generic_tracker;
-	
+	int m_n_head;
+
+
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	Matrix4 m_rmat4DevicePose[vr::k_unMaxTrackedDeviceCount];
 
@@ -58,7 +64,7 @@ public:
 	Matrix4 m_mat4ProjectionRight;
 
 
-// 재정의입니다.
+	// 재정의입니다.
 public:
 	virtual void OnDraw(CDC* pDC);  // 이 뷰를 그리기 위해 재정의되었습니다.
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
@@ -67,7 +73,7 @@ protected:
 	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
 	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
 
-// 구현입니다.
+	// 구현입니다.
 public:
 	virtual ~CHelloVive2View();
 #ifdef _DEBUG
@@ -77,7 +83,7 @@ public:
 
 protected:
 
-// 생성된 메시지 맵 함수
+	// 생성된 메시지 맵 함수
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
@@ -90,6 +96,8 @@ public:
 
 #ifndef _DEBUG  // HelloVive2View.cpp의 디버그 버전
 inline CHelloVive2Doc* CHelloVive2View::GetDocument() const
-   { return reinterpret_cast<CHelloVive2Doc*>(m_pDocument); }
+{
+	return reinterpret_cast<CHelloVive2Doc*>(m_pDocument);
+}
 #endif
 

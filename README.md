@@ -9,5 +9,5 @@
 - linker : ..\lib\openvr\lib\win32;
 ## Examples
 
-<img src='HelloVive2/Screenshots/screenshot02.png' /><br/>
+<img src='HelloVive2/Screenshots/screenshot05.png' /><br/>
 <img src='HelloVive2/Screenshots/screenshot03.png' /><br/>

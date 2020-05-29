@@ -44,7 +44,7 @@ CHelloVive2View::CHelloVive2View() noexcept
 	m_unMaxTrackedDeviceCount = 0;
 
 	m_n_generic_tracker = -1;
-
+	m_n_head = -1;
 
 	m_iTrackedControllerCount = 0;
 	m_iTrackedControllerCount_Last = -1;
@@ -131,24 +131,25 @@ CHelloVive2Doc* CHelloVive2View::GetDocument() const // 디버그되지 않은 �
 void CHelloVive2View::OnInitialUpdate()
 {
 	CView::OnInitialUpdate();
-	
-	SetTimer(0,20,NULL);
+
+	SetTimer(0, 20, NULL);
 	//RedirectIOToConsole();
 	CStringA str1 = "aa";
 
-	m_info1.Create(str1, WS_CHILD|WS_VISIBLE, CRect(0, 0, 200, 30),this,0);
+	m_info1.Create(str1, WS_CHILD | WS_VISIBLE, CRect(0, 0, 200, 30), this, 0);
 	m_info2.Create(str1, WS_CHILD | WS_VISIBLE, CRect(0, 0, 200, 30) + CPoint(0, 30 * 1), this, 0);
 	m_info3.Create(str1, WS_CHILD | WS_VISIBLE, CRect(0, 0, 200, 30) + CPoint(0, 30 * 2), this, 0);
-	m_edit1.Create(ES_MULTILINE | WS_CHILD | WS_VISIBLE | WS_BORDER , CRect(0, 0, 200, 70) + CPoint(0, 30 * 3), this, 0);
+
+	m_edit1.Create(ES_MULTILINE | WS_CHILD | WS_VISIBLE | WS_BORDER, CRect(0, 0, 200, 70) + CPoint(0, 30 * 3), this, 0);
+	m_edit2.Create(ES_MULTILINE | WS_CHILD | WS_VISIBLE | WS_BORDER, CRect(0, 0, 200, 70) + CPoint(0, 30 * 3 + 70), this, 0);
 
 	// Loading the SteamVR Runtime
 	vr::EVRInitError eError = vr::VRInitError_None;
-	m_pHMD = vr::VR_Init( &eError, vr::VRApplication_Scene );
-	
+	m_pHMD = vr::VR_Init(&eError, vr::VRApplication_Scene);
+
 
 	// TODO : Log the trajectory.
 	// TODO : OpenGL
-
 
 	this->SetFocus();
 
@@ -165,6 +166,7 @@ bool CHelloVive2View::UpdateHMDMatrixPose()
 	m_unMaxTrackedDeviceCount = vr::k_unMaxTrackedDeviceCount;
 
 	m_n_generic_tracker = -1;
+	m_n_head = -1;
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 	{
 		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
@@ -185,7 +187,7 @@ bool CHelloVive2View::UpdateHMDMatrixPose()
 			}
 			m_strPoseClasses += m_rDevClassChar[nDevice];
 
-			
+
 			if (m_pHMD->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_GenericTracker)
 			{
 				m_n_generic_tracker = nDevice;
@@ -193,7 +195,16 @@ bool CHelloVive2View::UpdateHMDMatrixPose()
 				//m_rmat4DevicePose[nDevice]
 
 			}
-			
+			else if (m_pHMD->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_HMD)
+			{
+				m_n_head = nDevice;
+				// get pose
+				//m_rmat4DevicePose[nDevice]
+
+			}
+
+
+
 		}
 	}
 
@@ -216,17 +227,18 @@ void CHelloVive2View::OnTimer(UINT_PTR nIDEvent)
 		m_info1.dbg("%d\t%d\t%d\tValid:%d", m_cnt, m_mode, b1, m_iValidPoseCount);//m_unMaxTrackedDeviceCount
 		m_info2.dbg(m_strPoseClasses.c_str());
 
+		Matrix4 h = m_rmat4DevicePose[m_n_head];
+
 		// column-wise
 		Matrix4 a = m_rmat4DevicePose[m_n_generic_tracker];
-		m_info3.dbg("%d, %.3f", m_n_generic_tracker, a[0]);
+		m_info3.dbg("HMD %d, %d, %.3f, %.3f", m_n_head, m_n_generic_tracker, h[0], a[0]);
 
 		CString buf;
-		buf.Format("%.3f, %.3f, %.3f, %.3f\r\n%.3f, %.3f, %.3f, %.3f\r\n%.3f, %.3f, %.3f, %.3f\r\n%.3f, %.3f, %.3f, %.3f",
-			a[0], a[4], a[8], a[12], 
-			a[1], a[5], a[9], a[13], 
-			a[2], a[6], a[10], a[14], 
-			a[3], a[7], a[11], a[15]);
+		ConvertToString(h, buf);
 		m_edit1.dbg(buf);
+
+		ConvertToString(a, buf);
+		m_edit2.dbg(buf);
 
 		m_cnt++;
 	}
@@ -245,7 +257,7 @@ void CHelloVive2View::OnDestroy()
 void CHelloVive2View::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	
+
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -259,7 +271,7 @@ BOOL CHelloVive2View::PreTranslateMessage(MSG* pMsg)
 		{
 			m_mode = 10;
 		}
-		else if (pMsg->wParam >= '0' && pMsg->wParam <= '9') 
+		else if (pMsg->wParam >= '0' && pMsg->wParam <= '9')
 		{
 			m_mode = pMsg->wParam - '0';
 		}
@@ -282,4 +294,14 @@ Matrix4 CHelloVive2View::ConvertSteamVRMatrixToMatrix4(const vr::HmdMatrix34_t &
 		matPose.m[0][3], matPose.m[1][3], matPose.m[2][3], 1.0f
 	);
 	return matrixObj;
+}
+
+
+void CHelloVive2View::ConvertToString(Matrix4 a, CString& buf)
+{
+	buf.Format("%.3f, %.3f, %.3f, %.3f\r\n%.3f, %.3f, %.3f, %.3f\r\n%.3f, %.3f, %.3f, %.3f\r\n%.3f, %.3f, %.3f, %.3f",
+		a[0], a[4], a[8], a[12],
+		a[1], a[5], a[9], a[13],
+		a[2], a[6], a[10], a[14],
+		a[3], a[7], a[11], a[15]);
 }
